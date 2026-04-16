@@ -970,7 +970,7 @@
     setupDropZone(el, el.dataset.drop);
   });
 
-  // ---- PASTE (UPGRADED) ----
+// ---- PASTE (UPGRADED) ----
   // Global paste listener: Pressing Ctrl+V anywhere on the page adds the image to the pool
   document.addEventListener('paste', e => {
     const items = e.clipboardData && e.clipboardData.items;
@@ -984,42 +984,6 @@
         reader.readAsDataURL(file);
       }
     }
-  });
-
-  // ---- MOVE POPUP ----
-  pasteZone.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') pasteZone.click();
-  });
-
-  document.addEventListener('paste', e => {
-    const items = e.clipboardData && e.clipboardData.items;
-    if (!items) return;
-    let found = false;
-    
-    for (let item of items) {
-      if (item.type.startsWith('image/')) {
-        found = true;
-        const file = item.getAsFile();
-        const reader = new FileReader();
-        reader.onload = ev => addImageToPool(ev.target.result, 'Pasted image');
-        reader.readAsDataURL(file);
-      }
-    }
-    
-    if (found) {
-      pasteZone.classList.remove('pasting');
-      pasteActive = false;
-      pasteZone.querySelector('.paste-text').textContent = 'Click here, then paste an image';
-    }
-  });
-
-  // Paste Zone specific drag styling
-  pasteZone.addEventListener('dragover', e => { e.preventDefault(); pasteZone.classList.add('pasting'); });
-  pasteZone.addEventListener('dragleave', () => pasteZone.classList.remove('pasting'));
-  pasteZone.addEventListener('drop', e => {
-    e.preventDefault();
-    pasteZone.classList.remove('pasting');
-    handleExternalImageDrop(e, 'pool');
   });
 
   // ---- MOVE POPUP ----
