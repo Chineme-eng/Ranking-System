@@ -1,61 +1,129 @@
+Here is the complete, upgraded `index.html` file. It features a sleek black-and-white base UI with a seamless light/dark mode toggle, while keeping the vibrant, unique colors for the 5 tiers. 
+
+It also includes the cinematic **Inter** font, on-the-fly editable text, double-click unranking, a clear board button, and a one-click YouTube thumbnail exporter.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Ranking System</title>
+    <title>Pro Tier List Ranker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
     <style>
+        /* CSS Variables for Light/Dark Mode */
+        :root {
+            --bg-color: #f3f4f6;
+            --text-color: #111827;
+            --surface-color: #ffffff;
+            --border-color: #e5e7eb;
+            --btn-bg: #111827;
+            --btn-text: #ffffff;
+            --btn-hover: #374151;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode {
+            --bg-color: #0a0a0a;
+            --text-color: #ffffff;
+            --surface-color: #171717;
+            --border-color: #262626;
+            --btn-bg: #ffffff;
+            --btn-text: #0a0a0a;
+            --btn-hover: #e5e5e5;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
-            padding: 30px;
+            padding: 40px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        .header-controls {
+        /* Controls UI */
+        .controls-glass {
+            background: var(--surface-color);
+            padding: 20px 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
             margin-bottom: 30px;
-            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
         }
 
         h1 {
-            margin-top: 0;
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+            margin-right: 20px;
+            letter-spacing: -0.5px;
         }
 
         button {
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: bold;
+            padding: 10px 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            background-color: #3b82f6;
-            color: white;
+            background-color: var(--btn-bg);
+            color: var(--btn-text);
             border: none;
-            border-radius: 6px;
-            transition: background-color 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            transition: all 0.2s ease;
         }
 
         button:hover {
-            background-color: #2563eb;
+            background-color: var(--btn-hover);
+            transform: translateY(-2px);
         }
 
-        .tier-list {
+        button.outline {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+        }
+
+        button.outline:hover {
+            background-color: var(--border-color);
+        }
+
+        button.export-btn {
+            background-color: #ef4444; /* YouTube Red */
+            color: white;
+        }
+
+        button.export-btn:hover {
+            background-color: #dc2626;
+        }
+
+        /* Tier List Core */
+        .tier-list-wrapper {
             width: 100%;
-            max-width: 900px;
-            background-color: #1e1e1e;
-            border: 2px solid #333;
-            border-radius: 12px;
+            max-width: 1100px;
+            background-color: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 10px 15px rgba(0,0,0,0.5);
+            box-shadow: var(--shadow);
         }
 
         .tier-row {
             display: flex;
-            border-bottom: 2px solid #333;
-            min-height: 120px;
+            border-bottom: 2px solid var(--border-color);
+            min-height: 140px;
         }
 
         .tier-row:last-child {
@@ -63,15 +131,22 @@
         }
 
         .tier-label {
-            width: 130px;
+            width: 150px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            text-align: center;
+            font-size: 22px;
             font-weight: 800;
-            color: #121212;
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.4);
+            color: #111;
+            text-shadow: 0px 1px 3px rgba(255,255,255,0.4);
             transition: background-color 0.3s ease;
+            outline: none; /* For contenteditable */
+            padding: 10px;
+        }
+
+        .tier-label:focus {
+            box-shadow: inset 0 0 0 3px rgba(0,0,0,0.3);
         }
 
         .tier-content {
@@ -80,100 +155,114 @@
             flex-wrap: wrap;
             padding: 15px;
             gap: 15px;
-            background-color: #1e1e1e;
+            background-color: var(--surface-color);
             transition: background-color 0.2s;
         }
 
+        /* Unranked Zone */
         .unranked-container {
             width: 100%;
-            max-width: 900px;
+            max-width: 1100px;
             margin-top: 40px;
+            text-align: center;
         }
 
-        .unranked-container h3 {
+        .unranked-container p {
+            color: var(--text-color);
+            opacity: 0.7;
+            font-weight: 600;
             margin-bottom: 15px;
-            color: #9ca3af;
-            font-weight: 500;
         }
 
         .unranked-zone {
-            min-height: 180px;
-            background-color: #1e1e1e;
-            border: 2px dashed #4b5563;
-            border-radius: 12px;
+            min-height: 200px;
+            background-color: var(--surface-color);
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
             padding: 20px;
             display: flex;
             flex-wrap: wrap;
+            justify-content: center;
             gap: 15px;
-            transition: background-color 0.2s, border-color 0.2s;
+            transition: all 0.2s;
         }
 
+        /* Drag and Drop Visuals */
         .draggable-img {
-            width: 110px;
-            height: 110px;
+            width: 120px;
+            height: 120px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: grab;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-            transition: transform 0.1s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .draggable-img:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.4);
         }
 
         .draggable-img:active {
             cursor: grabbing;
-            transform: scale(1.05);
+            transform: scale(0.95);
         }
 
         .dropzone.dragover {
-            background-color: #2a2a2a;
-        }
-        
-        .unranked-zone.dragover {
-            background-color: #2a2a2a;
-            border-color: #3b82f6;
+            background-color: var(--border-color);
         }
     </style>
 </head>
-<body>
-
-    <div class="header-controls">
-        <h1>Tier List Ranker</h1>
-        <button id="styleToggle">Switch Ranking Style</button>
+<body class="dark-mode"> <div class="controls-glass">
+        <h1>Tier Ranker</h1>
+        <button id="themeToggle" class="outline">☀️ Light Mode</button>
+        <button id="styleToggle">Switch Style</button>
+        <button id="clearBtn" class="outline">Clear Board</button>
+        <button id="exportBtn" class="export-btn">📸 Save Thumbnail</button>
     </div>
 
-    <div class="tier-list">
+    <div class="tier-list-wrapper" id="capture-area">
         <div class="tier-row">
-            <div class="tier-label" id="label1"></div>
+            <div class="tier-label" id="label1" contenteditable="true" spellcheck="false"></div>
             <div class="tier-content dropzone" id="tier1"></div>
         </div>
         <div class="tier-row">
-            <div class="tier-label" id="label2"></div>
+            <div class="tier-label" id="label2" contenteditable="true" spellcheck="false"></div>
             <div class="tier-content dropzone" id="tier2"></div>
         </div>
         <div class="tier-row">
-            <div class="tier-label" id="label3"></div>
+            <div class="tier-label" id="label3" contenteditable="true" spellcheck="false"></div>
             <div class="tier-content dropzone" id="tier3"></div>
+        </div>
+        <div class="tier-row">
+            <div class="tier-label" id="label4" contenteditable="true" spellcheck="false"></div>
+            <div class="tier-content dropzone" id="tier4"></div>
+        </div>
+        <div class="tier-row">
+            <div class="tier-label" id="label5" contenteditable="true" spellcheck="false"></div>
+            <div class="tier-content dropzone" id="tier5"></div>
         </div>
     </div>
 
     <div class="unranked-container">
-        <h3>Paste Images anywhere (Ctrl+V / Cmd+V) or Drag them back here:</h3>
+        <p>Paste images (Ctrl+V / Cmd+V) • Drag to rank • Double-click image to unrank</p>
         <div class="unranked-zone dropzone" id="unrankedZone"></div>
     </div>
 
     <script>
-        // --- 1. Ranking Styles Configuration ---
+        // --- 1. 5-Tier Styles Configuration ---
         const rankingStyles = [
             { // Style 1: Standard
-                labels: ['S Tier', 'A Tier', 'B Tier'],
-                colors: ['#ef4444', '#f97316', '#eab308'] // Red, Orange, Yellow
+                labels: ['S Tier', 'A Tier', 'B Tier', 'C Tier', 'D Tier'],
+                colors: ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6'] // Red, Orange, Yellow, Green, Blue
             },
-            { // Style 2: Medals
-                labels: ['Gold', 'Silver', 'Bronze'],
-                colors: ['#fbbf24', '#9ca3af', '#b45309'] // Gold, Silver, Bronze
+            { // Style 2: Descriptive
+                labels: ['Top Tier', 'Great', 'Solid', 'Mid', 'Trash'],
+                colors: ['#8b5cf6', '#d946ef', '#f43f5e', '#64748b', '#334155'] // Purple, Pink, Rose, Slate, Dark Slate
             },
-            { // Style 3: Descriptive
-                labels: ['Top Tier', 'Mid Tier', 'Low Tier'],
-                colors: ['#22c55e', '#3b82f6', '#a855f7'] // Green, Blue, Purple
+            { // Style 3: Medals
+                labels: ['Platinum', 'Gold', 'Silver', 'Bronze', 'Iron'],
+                colors: ['#06b6d4', '#fbbf24', '#9ca3af', '#b45309', '#78716c'] // Cyan, Gold, Silver, Bronze, Stone
             }
         ];
 
@@ -181,30 +270,39 @@
 
         function applyStyle(index) {
             const style = rankingStyles[index];
-            for (let i = 1; i <= 3; i++) {
+            for (let i = 1; i <= 5; i++) {
                 const labelElement = document.getElementById(`label${i}`);
                 labelElement.innerText = style.labels[i - 1];
                 labelElement.style.backgroundColor = style.colors[i - 1];
             }
         }
 
-        // Initialize default style
+        // Init style
         applyStyle(currentStyleIndex);
 
-        // Toggle button logic
+        // Style Toggle
         document.getElementById('styleToggle').addEventListener('click', () => {
             currentStyleIndex = (currentStyleIndex + 1) % rankingStyles.length;
             applyStyle(currentStyleIndex);
         });
 
+        // Theme Toggle (Light/Dark)
+        const themeBtn = document.getElementById('themeToggle');
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                themeBtn.innerText = '☀️ Light Mode';
+            } else {
+                themeBtn.innerText = '🌙 Dark Mode';
+            }
+        });
 
-        // --- 2. Image Pasting Logic ---
+        // --- 2. Image Management (Paste, Drag, DblClick) ---
         document.addEventListener('paste', (e) => {
             const files = e.clipboardData.files;
             if (files.length === 0) return;
 
             for (let i = 0; i < files.length; i++) {
-                // Check if the pasted file is an image
                 if (files[i].type.indexOf('image') !== -1) {
                     const blob = files[i];
                     const imageUrl = URL.createObjectURL(blob);
@@ -218,17 +316,18 @@
             img.src = src;
             img.className = 'draggable-img';
             img.draggable = true;
-            img.id = 'img-' + Date.now() + '-' + Math.floor(Math.random() * 1000); // Unique ID
+            img.id = 'img-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
             
-            // Add drag event listener to the new image
             img.addEventListener('dragstart', dragStart);
             
-            // Append to the unranked zone
+            // Double-click to unrank instantly
+            img.addEventListener('dblclick', function() {
+                document.getElementById('unrankedZone').appendChild(this);
+            });
+            
             document.getElementById('unrankedZone').appendChild(img);
         }
 
-
-        // --- 3. Drag and Drop Logic ---
         let draggedElementId = null;
 
         function dragStart(e) {
@@ -241,12 +340,12 @@
 
         dropzones.forEach(zone => {
             zone.addEventListener('dragover', (e) => {
-                e.preventDefault(); // Necessary to allow dropping
+                e.preventDefault();
                 e.dataTransfer.dropEffect = "move";
                 zone.classList.add('dragover');
             });
 
-            zone.addEventListener('dragleave', (e) => {
+            zone.addEventListener('dragleave', () => {
                 zone.classList.remove('dragover');
             });
 
@@ -262,6 +361,42 @@
                 }
             });
         });
+
+        // --- 3. Utilities (Clear & Export) ---
+        
+        // Clear Board
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            const unrankedZone = document.getElementById('unrankedZone');
+            const rankedImages = document.querySelectorAll('.tier-content .draggable-img');
+            rankedImages.forEach(img => unrankedZone.appendChild(img));
+        });
+
+        // Export as PNG Thumbnail
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            const captureArea = document.getElementById('capture-area');
+            const originalBorder = captureArea.style.border;
+            
+            // Temporarily remove border radius for clean thumbnail edge if desired
+            captureArea.style.borderRadius = "0px"; 
+
+            // Get current background color based on theme
+            const bgColor = getComputedStyle(document.body).getPropertyValue('--surface-color').trim();
+
+            html2canvas(captureArea, {
+                backgroundColor: bgColor,
+                scale: 2 // High res export
+            }).then(canvas => {
+                // Restore styles
+                captureArea.style.borderRadius = "16px";
+
+                // Trigger download
+                const link = document.createElement('a');
+                link.download = 'tier-list-thumbnail.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        });
     </script>
 </body>
 </html>
+```
