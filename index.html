@@ -932,10 +932,17 @@
     }
   }
 
-  function setupDropZone(el, tierId) {
+ function setupDropZone(el, tierId) {
     el.addEventListener('dragover', e => {
       e.preventDefault();
-      e.dataTransfer.dropEffect = 'copy'; 
+      
+      // THE FIX: Check if we are dragging an internal image or an external file
+      if (dragCard) {
+        e.dataTransfer.dropEffect = 'move'; // Internal pool image
+      } else {
+        e.dataTransfer.dropEffect = 'copy'; // External file from desktop/web
+      }
+      
       el.closest('.tier-row, .pool-section') && el.closest('.tier-row, .pool-section').classList.add('drag-over');
     });
     
