@@ -894,89 +894,79 @@
     });
   }
 
-  // ---- DRAG & DROP ----
+ // ---- DRAG & DROP (UPGRADED) ----
+
+  // 1. Stop the browser from opening the file if you miss the drop zone
+  window.addEventListener('dragover', e => e.preventDefault());
+  window.addEventListener('drop', e => e.preventDefault());
+
+  // 2. Universal Image Handler (Handles desktop files AND web tab dragging)
+  function handleExternalImageDrop(e, tierId) {
+    // A. Check for local computer files first
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      Array.from(e.dataTransfer.files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = ev => {
+            addImageToPool(ev.target.result, file.name);
+            if (tierId !== 'pool') setTimeout(() => moveImageToTier('img_' + imgIdCounter, tierId), 0);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+      return;
+    }
+
+    // B. Check for images dragged directly from other browser tabs (Google Images, etc.)
+    const htmlData = e.dataTransfer.getData('text/html');
+    if (htmlData) {
+      const doc = new DOMParser().parseFromString(htmlData, 'text/html');
+      const img = doc.querySelector('img');
+      if (img && img.src) {
+        // Prevent importing tiny tracking pixels or icons
+        if (!img.src.startsWith('data:') && img.src.length > 20) {
+            addImageToPool(img.src, 'Web Image');
+            if (tierId !== 'pool') setTimeout(() => moveImageToTier('img_' + imgIdCounter, tierId), 0);
+        }
+      }
+    }
+  }
+
   function setupDropZone(el, tierId) {
     el.addEventListener('dragover', e => {
       e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
+      e.dataTransfer.dropEffect = 'copy'; 
       el.closest('.tier-row, .pool-section') && el.closest('.tier-row, .pool-section').classList.add('drag-over');
     });
+    
     el.addEventListener('dragleave', e => {
       if (!el.contains(e.relatedTarget)) {
         el.closest('.tier-row, .pool-section') && el.closest('.tier-row, .pool-section').classList.remove('drag-over');
       }
     });
+    
     el.addEventListener('drop', e => {
       e.preventDefault();
       el.closest('.tier-row, .pool-section') && el.closest('.tier-row, .pool-section').classList.remove('drag-over');
+
       const imgId = e.dataTransfer.getData('text/plain');
+      
+      // If moving an existing image inside the app
       if (imgId && images[imgId]) {
         moveImageToTier(imgId, tierId);
+      } else {
+        // If dropping a brand new image from outside
+        handleExternalImageDrop(e, tierId);
       }
-      // Handle file drops
-     // Handle file drops
-if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-  Array.from(e.dataTransfer.files).forEach(file => {
-    if (file.type.startsWith('image/')) {
-      const reader = new FileReader();
-
-      reader.onload = ev => {
-        addImageToPool(ev.target.result, file.name);
-
-        // move instantly into the tier you dropped on
-        setTimeout(() => {
-          const lastId = 'img_' + imgIdCounter;
-          moveImageToTier(lastId, tierId);
-        }, 0);
-      };
-
-      reader.readAsDataURL(file);
-    }
-  });
-}
     });
   }
 
-  // Set up drop zones on all tier contents + pool
+  // Attach the drop zones cleanly
   document.querySelectorAll('[data-drop]').forEach(el => {
     setupDropZone(el, el.dataset.drop);
   });
 
-  // Also pool section itself
-  const poolSection = document.getElementById('imagePool');
-  poolSection.addEventListener('dragover', e => {
-    if (e.target === poolSection || e.target.id === 'poolImages') {
-      e.preventDefault();
-      poolSection.classList.add('drag-over');
-    }
-  });
-  poolSection.addEventListener('dragleave', e => {
-    if (!poolSection.contains(e.relatedTarget)) poolSection.classList.remove('drag-over');
-  });
- poolSection.addEventListener('drop', e => {
-  e.preventDefault();
-  poolSection.classList.remove('drag-over');
-
-  // Handle moving existing images
-  const imgId = e.dataTransfer.getData('text/plain');
-  if (imgId && images[imgId] && placement[imgId] !== 'pool') {
-    moveImageToTier(imgId, 'pool');
-  }
-
-  // ✅ Handle NEW image files (THIS WAS MISSING)
-  if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-    Array.from(e.dataTransfer.files).forEach(file => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = ev => addImageToPool(ev.target.result, file.name);
-        reader.readAsDataURL(file);
-      }
-    });
-  }
-});
-
-
-  // ---- PASTE ----
+  // ---- PASTE (UPGRADED) ----
   const pasteZone = document.getElementById('pasteZone');
   let pasteActive = false;
 
@@ -984,7 +974,11 @@ if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
     pasteZone.classList.add('pasting');
     pasteActive = true;
     pasteZone.querySelector('.paste-text').textContent = 'Ready! Now paste your image (Ctrl+V / Cmd+V)';
-    setTimeout(() => { pasteZone.classList.remove('pasting'); pasteActive = false; pasteZone.querySelector('.paste-text').textContent = 'Click here, then paste an image'; }, 6000);
+    setTimeout(() => { 
+        pasteZone.classList.remove('pasting'); 
+        pasteActive = false; 
+        pasteZone.querySelector('.paste-text').textContent = 'Click here, then paste an image'; 
+    }, 6000);
   });
 
   pasteZone.addEventListener('keydown', e => {
@@ -995,6 +989,7 @@ if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
     const items = e.clipboardData && e.clipboardData.items;
     if (!items) return;
     let found = false;
+    
     for (let item of items) {
       if (item.type.startsWith('image/')) {
         found = true;
@@ -1004,6 +999,7 @@ if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
         reader.readAsDataURL(file);
       }
     }
+    
     if (found) {
       pasteZone.classList.remove('pasting');
       pasteActive = false;
@@ -1011,22 +1007,13 @@ if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
     }
   });
 
-  // File drop on paste zone
+  // Paste Zone specific drag styling
   pasteZone.addEventListener('dragover', e => { e.preventDefault(); pasteZone.classList.add('pasting'); });
   pasteZone.addEventListener('dragleave', () => pasteZone.classList.remove('pasting'));
   pasteZone.addEventListener('drop', e => {
     e.preventDefault();
     pasteZone.classList.remove('pasting');
-    const files = e.dataTransfer.files;
-    if (files) {
-      Array.from(files).forEach(file => {
-        if (file.type.startsWith('image/')) {
-          const reader = new FileReader();
-          reader.onload = ev => addImageToPool(ev.target.result, file.name);
-          reader.readAsDataURL(file);
-        }
-      });
-    }
+    handleExternalImageDrop(e, 'pool');
   });
 
   // ---- MOVE POPUP ----
