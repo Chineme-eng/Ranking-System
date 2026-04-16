@@ -1,267 +1,1126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Ranking System</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
-            margin: 0;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rank It</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F0E8;
+    --bg2: #EDE8DF;
+    --bg3: #E4DDD0;
+    --surface: #FEFCF8;
+    --surface2: #F8F4EC;
+    --text: #1A1208;
+    --text2: #4A3F2F;
+    --text3: #8A7A65;
+    --border: rgba(26,18,8,0.12);
+    --border2: rgba(26,18,8,0.22);
+    --orange: #E86A2E;
+    --orange-light: #F5905C;
+    --orange-dim: rgba(232,106,46,0.12);
+    --orange-dim2: rgba(232,106,46,0.22);
+    --shadow: 0 2px 12px rgba(26,18,8,0.08);
+    --shadow2: 0 6px 24px rgba(26,18,8,0.14);
+    --radius: 10px;
+    --radius2: 16px;
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
 
-        .header-controls {
-            margin-bottom: 30px;
-            text-align: center;
-        }
+    --t1: #2D6A2D; --t1-bg: #D6EDD6; --t1-border: #4CAF50;
+    --t2: #1A5E8A; --t2-bg: #D0E8F5; --t2-border: #2196F3;
+    --t3: #7A3E99; --t3-bg: #EDD6F5; --t3-border: #9C27B0;
+    --t4: #B06020; --t4-bg: #F5E0C8; --t4-border: #FF9800;
+    --t5: #8A1A1A; --t5-bg: #F5D0D0; --t5-border: #F44336;
+  }
+  [data-theme="dark"] {
+    --bg: #12100C;
+    --bg2: #1A1710;
+    --bg3: #221F16;
+    --surface: #1E1B13;
+    --surface2: #252119;
+    --text: #F0EAD8;
+    --text2: #C8BFA8;
+    --text3: #8A7D65;
+    --border: rgba(240,234,216,0.1);
+    --border2: rgba(240,234,216,0.2);
+    --orange: #F07840;
+    --orange-light: #F5A07A;
+    --orange-dim: rgba(240,120,64,0.15);
+    --orange-dim2: rgba(240,120,64,0.25);
+    --shadow: 0 2px 12px rgba(0,0,0,0.3);
+    --shadow2: 0 6px 24px rgba(0,0,0,0.4);
 
-        h1 {
-            margin-top: 0;
-        }
+    --t1: #8BCD8B; --t1-bg: #1A2E1A; --t1-border: #4CAF50;
+    --t2: #6AAFD6; --t2-bg: #112030; --t2-border: #2196F3;
+    --t3: #C07AE0; --t3-bg: #23102E; --t3-border: #9C27B0;
+    --t4: #D89050; --t4-bg: #2E1E0A; --t4-border: #FF9800;
+    --t5: #E07070; --t5-bg: #2E0A0A; --t5-border: #F44336;
+  }
 
-        button {
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            background-color: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            transition: background-color 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        button:hover {
-            background-color: #2563eb;
-        }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
 
-        .tier-list {
-            width: 100%;
-            max-width: 900px;
-            background-color: #1e1e1e;
-            border: 2px solid #333;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 15px rgba(0,0,0,0.5);
-        }
+  /* ---- HEADER ---- */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--orange); }
+  .header-controls { display: flex; align-items: center; gap: 12px; }
 
-        .tier-row {
-            display: flex;
-            border-bottom: 2px solid #333;
-            min-height: 120px;
-        }
+  .style-switcher {
+    display: flex;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 4px;
+    gap: 2px;
+  }
+  .style-btn {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text3);
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .style-btn.active {
+    background: var(--orange);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(232,106,46,0.35);
+  }
 
-        .tier-row:last-child {
-            border-bottom: none;
-        }
+  .theme-toggle {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--border2);
+    background: var(--bg2);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s;
+    color: var(--text);
+  }
+  .theme-toggle:hover { background: var(--bg3); }
 
-        .tier-label {
-            width: 130px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: 800;
-            color: #121212;
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.4);
-            transition: background-color 0.3s ease;
-        }
+  .export-btn {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 50px;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .export-btn:hover { background: var(--orange); color: #fff; border-color: var(--orange); }
 
-        .tier-content {
-            flex-grow: 1;
-            display: flex;
-            flex-wrap: wrap;
-            padding: 15px;
-            gap: 15px;
-            background-color: #1e1e1e;
-            transition: background-color 0.2s;
-        }
+  /* ---- MAIN ---- */
+  .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
 
-        .unranked-container {
-            width: 100%;
-            max-width: 900px;
-            margin-top: 40px;
-        }
+  /* ---- TIERS ---- */
+  .tiers-section { margin-bottom: 36px; }
 
-        .unranked-container h3 {
-            margin-bottom: 15px;
-            color: #9ca3af;
-            font-weight: 500;
-        }
+  .tier-row {
+    display: flex;
+    align-items: stretch;
+    margin-bottom: 8px;
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    overflow: hidden;
+    background: var(--surface);
+    transition: border-color 0.2s;
+  }
+  .tier-row.drag-over { border-color: var(--orange); box-shadow: 0 0 0 2px var(--orange-dim2); }
 
-        .unranked-zone {
-            min-height: 180px;
-            background-color: #1e1e1e;
-            border: 2px dashed #4b5563;
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            transition: background-color 0.2s, border-color 0.2s;
-        }
+  .tier-label {
+    width: 100px;
+    min-width: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 8px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    cursor: pointer;
+    transition: filter 0.2s;
+    position: relative;
+  }
+  .tier-label:hover { filter: brightness(1.08); }
+  .tier-label-sub {
+    font-family: var(--font-body);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+  .tier-label-input {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    color: #fff;
+    background: transparent;
+    border: none;
+    outline: none;
+    text-align: center;
+    width: 80px;
+    cursor: text;
+  }
+  .tier-label-input::placeholder { color: rgba(255,255,255,0.6); }
 
-        .draggable-img {
-            width: 110px;
-            height: 110px;
-            object-fit: cover;
-            border-radius: 8px;
-            cursor: grab;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-            transition: transform 0.1s;
-        }
+  .tier-content {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    min-height: 80px;
+  }
 
-        .draggable-img:active {
-            cursor: grabbing;
-            transform: scale(1.05);
-        }
+  .tier-count {
+    margin-left: auto;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tier-count-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 50px;
+    background: var(--bg2);
+    color: var(--text3);
+    border: 1px solid var(--border);
+  }
 
-        .dropzone.dragover {
-            background-color: #2a2a2a;
-        }
-        
-        .unranked-zone.dragover {
-            background-color: #2a2a2a;
-            border-color: #3b82f6;
-        }
-    </style>
+  /* ---- IMAGE CARDS ---- */
+  .img-card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: grab;
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    border: 2px solid transparent;
+    transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+    background: var(--bg2);
+  }
+  .img-card:active { cursor: grabbing; }
+  .img-card:hover { transform: scale(1.06); border-color: var(--orange); box-shadow: var(--shadow2); z-index: 2; }
+  .img-card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    display: block;
+  }
+  .img-card .card-actions {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+  .img-card:hover .card-actions { opacity: 1; }
+  .card-btn {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .card-btn:hover { background: rgba(255,255,255,0.3); }
+  .card-btn.danger:hover { background: rgba(220,50,50,0.6); border-color: rgba(220,50,50,0.8); }
+
+  .img-card.dragging { opacity: 0.35; transform: scale(0.95); }
+
+  /* ---- MOVE POPUP ---- */
+  .move-popup {
+    position: fixed;
+    z-index: 200;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius2);
+    box-shadow: var(--shadow2);
+    padding: 12px;
+    min-width: 180px;
+    display: none;
+  }
+  .move-popup.visible { display: block; }
+  .move-popup-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .move-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.15s;
+    color: var(--text);
+  }
+  .move-option:hover { background: var(--bg2); }
+  .move-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .move-option.to-pool { color: var(--text3); }
+
+  /* ---- POOL ---- */
+  .pool-section {
+    background: var(--surface);
+    border: 2px dashed var(--border2);
+    border-radius: var(--radius2);
+    padding: 20px;
+  }
+  .pool-section.drag-over {
+    border-color: var(--orange);
+    background: var(--orange-dim);
+  }
+  .pool-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .pool-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .pool-title span { color: var(--orange); }
+  .pool-actions { display: flex; gap: 8px; align-items: center; }
+  .pool-btn {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 50px;
+    border: 1px solid var(--border2);
+    background: var(--bg2);
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .pool-btn:hover { background: var(--bg3); }
+  .pool-btn.danger:hover { background: #F44336; color: #fff; border-color: #F44336; }
+
+  .pool-drop-hint {
+    font-size: 13px;
+    color: var(--text3);
+    text-align: center;
+    padding: 12px 0 4px;
+    font-style: italic;
+  }
+  .pool-drop-hint strong { color: var(--orange); font-style: normal; }
+
+  .pool-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: 80px;
+    padding: 4px 0;
+  }
+
+  /* ---- PASTE ZONE ---- */
+  .paste-zone {
+    margin-top: 20px;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--bg2);
+    position: relative;
+  }
+  .paste-zone:hover, .paste-zone:focus {
+    border-color: var(--orange);
+    background: var(--orange-dim);
+    outline: none;
+  }
+  .paste-zone.pasting {
+    border-color: var(--orange);
+    background: var(--orange-dim2);
+  }
+  .paste-icon { font-size: 28px; margin-bottom: 8px; }
+  .paste-text { font-size: 13px; color: var(--text2); font-weight: 500; }
+  .paste-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+  /* ---- ZOOM OVERLAY ---- */
+  .zoom-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(0,0,0,0.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+  }
+  .zoom-overlay.visible { display: flex; }
+  .zoom-img {
+    max-width: 90vw;
+    max-height: 88vh;
+    border-radius: var(--radius2);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    object-fit: contain;
+    animation: zoomIn 0.2s ease;
+  }
+  @keyframes zoomIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .zoom-close {
+    position: absolute;
+    top: 20px; right: 24px;
+    font-size: 28px;
+    color: #fff;
+    cursor: pointer;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .zoom-close:hover { background: rgba(255,255,255,0.2); }
+
+  /* ---- TIER COLORS ---- */
+  .tier-S .tier-label, .tier-Gold .tier-label, .tier-GOD .tier-label { background: linear-gradient(135deg, #2D8A2D, #45B045); }
+  .tier-A .tier-label, .tier-Silver .tier-label, .tier-ELITE .tier-label { background: linear-gradient(135deg, #1A5E8A, #2485C1); }
+  .tier-B .tier-label, .tier-Bronze .tier-label, .tier-MID .tier-label { background: linear-gradient(135deg, #7A3E99, #A055CC); }
+  .tier-C .tier-label, .tier-Notable .tier-label, .tier-WEAK .tier-label { background: linear-gradient(135deg, #B06020, #D88030); }
+  .tier-D .tier-label, .tier-Unranked .tier-label, .tier-TRASH .tier-label { background: linear-gradient(135deg, #8A1A1A, #B52525); }
+
+  .tier-S { border-color: var(--t1-border); }
+  .tier-A { border-color: var(--t2-border); }
+  .tier-B { border-color: var(--t3-border); }
+  .tier-C { border-color: var(--t4-border); }
+  .tier-D { border-color: var(--t5-border); }
+  .tier-Gold { border-color: var(--t1-border); }
+  .tier-Silver { border-color: var(--t2-border); }
+  .tier-Bronze { border-color: var(--t3-border); }
+  .tier-Notable { border-color: var(--t4-border); }
+  .tier-Unranked { border-color: var(--t5-border); }
+  .tier-GOD { border-color: var(--t1-border); }
+  .tier-ELITE { border-color: var(--t2-border); }
+  .tier-MID { border-color: var(--t3-border); }
+  .tier-WEAK { border-color: var(--t4-border); }
+  .tier-TRASH { border-color: var(--t5-border); }
+
+  /* Tier background tints */
+  .tier-S .tier-content, .tier-Gold .tier-content, .tier-GOD .tier-content { background: var(--t1-bg); }
+  .tier-A .tier-content, .tier-Silver .tier-content, .tier-ELITE .tier-content { background: var(--t2-bg); }
+  .tier-B .tier-content, .tier-Bronze .tier-content, .tier-MID .tier-content { background: var(--t3-bg); }
+  .tier-C .tier-content, .tier-Notable .tier-content, .tier-WEAK .tier-content { background: var(--t4-bg); }
+  .tier-D .tier-content, .tier-Unranked .tier-content, .tier-TRASH .tier-content { background: var(--t5-bg); }
+
+  .style-panel { display: none; }
+  .style-panel.active { display: block; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .style-desc {
+    font-size: 12px;
+    color: var(--text3);
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  .reset-all-btn {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 16px;
+    border-radius: 50px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .reset-all-btn:hover { border-color: #F44336; color: #F44336; }
+
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--text);
+    color: var(--bg);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 22px;
+    border-radius: 50px;
+    box-shadow: var(--shadow2);
+    z-index: 400;
+    transition: transform 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .empty-hint {
+    font-size: 12px;
+    color: var(--text3);
+    font-style: italic;
+    padding: 8px 0;
+  }
+
+  @media (max-width: 700px) {
+    .header { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
+    .main { padding: 16px; }
+    .tier-label { width: 70px; min-width: 70px; font-size: 17px; }
+    .img-card { width: 66px; height: 66px; }
+    .style-btn { font-size: 11px; padding: 5px 10px; }
+  }
+</style>
 </head>
 <body>
 
-    <div class="header-controls">
-        <h1>Tier List Ranker</h1>
-        <button id="styleToggle">Switch Ranking Style</button>
+<header class="header">
+  <div class="logo">Rank<span>It</span></div>
+  <div class="header-controls">
+    <div class="style-switcher">
+      <button class="style-btn active" data-style="tierlist">Tier List</button>
+      <button class="style-btn" data-style="podium">Podium</button>
+      <button class="style-btn" data-style="custom">Custom</button>
+    </div>
+    <button class="export-btn" id="exportBtn">&#8681; Export PNG</button>
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme">☀</button>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- TIER LIST MODE -->
+  <div class="style-panel active" id="panel-tierlist">
+    <div class="section-label">Tier List — S to D ranking</div>
+    <p class="style-desc">Classic tier list. Drag images from the pool below into each tier, or use click-to-move.</p>
+    <div class="tiers-section" id="tiers-tierlist">
+      <div class="tier-row tier-S" data-tier="tierlist-S" data-style="tierlist">
+        <div class="tier-label" style="background:linear-gradient(135deg,#2D8A2D,#45B045)">S<div class="tier-label-sub">Top Tier</div></div>
+        <div class="tier-content" data-drop="tierlist-S"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+      <div class="tier-row tier-A" data-tier="tierlist-A" data-style="tierlist">
+        <div class="tier-label" style="background:linear-gradient(135deg,#1A5E8A,#2485C1)">A<div class="tier-label-sub">Great</div></div>
+        <div class="tier-content" data-drop="tierlist-A"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+      <div class="tier-row tier-B" data-tier="tierlist-B" data-style="tierlist">
+        <div class="tier-label" style="background:linear-gradient(135deg,#7A3E99,#A055CC)">B<div class="tier-label-sub">Good</div></div>
+        <div class="tier-content" data-drop="tierlist-B"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+      <div class="tier-row tier-C" data-tier="tierlist-C" data-style="tierlist">
+        <div class="tier-label" style="background:linear-gradient(135deg,#B06020,#D88030)">C<div class="tier-label-sub">Average</div></div>
+        <div class="tier-content" data-drop="tierlist-C"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+      <div class="tier-row tier-D" data-tier="tierlist-D" data-style="tierlist">
+        <div class="tier-label" style="background:linear-gradient(135deg,#8A1A1A,#B52525)">D<div class="tier-label-sub">Below Avg</div></div>
+        <div class="tier-content" data-drop="tierlist-D"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PODIUM MODE -->
+  <div class="style-panel" id="panel-podium">
+    <div class="section-label">Podium — Competition ranking</div>
+    <p class="style-desc">Competition-style podium. Gold, Silver, Bronze for the winners — Notable and Unranked for the rest.</p>
+    <div class="tiers-section" id="tiers-podium">
+      <div class="tier-row tier-Gold" data-tier="podium-Gold" data-style="podium">
+        <div class="tier-label" style="background:linear-gradient(135deg,#2D8A2D,#45B045)">🥇<div class="tier-label-sub">Gold</div></div>
+        <div class="tier-content" data-drop="podium-Gold"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+      <div class="tier-row tier-Silver" data-tier="podium-Silver" data-style="podium">
+        <div class="tier-label" style="background:linear-gradient(135deg,#1A5E8A,#2485C1)">🥈<div class="tier-label-sub">Silver</div></div>
+        <div class="tier-content" data-drop="podium-Silver"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+      <div class="tier-row tier-Bronze" data-tier="podium-Bronze" data-style="podium">
+        <div class="tier-label" style="background:linear-gradient(135deg,#7A3E99,#A055CC)">🥉<div class="tier-label-sub">Bronze</div></div>
+        <div class="tier-content" data-drop="podium-Bronze"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+      <div class="tier-row tier-Notable" data-tier="podium-Notable" data-style="podium">
+        <div class="tier-label" style="background:linear-gradient(135deg,#B06020,#D88030)">★<div class="tier-label-sub">Notable</div></div>
+        <div class="tier-content" data-drop="podium-Notable"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+      <div class="tier-row tier-Unranked" data-tier="podium-Unranked" data-style="podium">
+        <div class="tier-label" style="background:linear-gradient(135deg,#8A1A1A,#B52525)">—<div class="tier-label-sub">Unranked</div></div>
+        <div class="tier-content" data-drop="podium-Unranked"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOM MODE -->
+  <div class="style-panel" id="panel-custom">
+    <div class="section-label">Custom — Edit your own tier labels</div>
+    <p class="style-desc">Click any tier label to rename it. Make it your own.</p>
+    <div class="tiers-section" id="tiers-custom">
+      <div class="tier-row tier-GOD" data-tier="custom-GOD" data-style="custom">
+        <div class="tier-label" style="background:linear-gradient(135deg,#2D8A2D,#45B045)"><input class="tier-label-input" value="GOD" maxlength="6" spellcheck="false"/><div class="tier-label-sub">Edit label</div></div>
+        <div class="tier-content" data-drop="custom-GOD"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+      <div class="tier-row tier-ELITE" data-tier="custom-ELITE" data-style="custom">
+        <div class="tier-label" style="background:linear-gradient(135deg,#1A5E8A,#2485C1)"><input class="tier-label-input" value="ELITE" maxlength="6" spellcheck="false"/><div class="tier-label-sub">Edit label</div></div>
+        <div class="tier-content" data-drop="custom-ELITE"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+      <div class="tier-row tier-MID" data-tier="custom-MID" data-style="custom">
+        <div class="tier-label" style="background:linear-gradient(135deg,#7A3E99,#A055CC)"><input class="tier-label-input" value="MID" maxlength="6" spellcheck="false"/><div class="tier-label-sub">Edit label</div></div>
+        <div class="tier-content" data-drop="custom-MID"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+      <div class="tier-row tier-WEAK" data-tier="custom-WEAK" data-style="custom">
+        <div class="tier-label" style="background:linear-gradient(135deg,#B06020,#D88030)"><input class="tier-label-input" value="WEAK" maxlength="6" spellcheck="false"/><div class="tier-label-sub">Edit label</div></div>
+        <div class="tier-content" data-drop="custom-WEAK"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+      <div class="tier-row tier-TRASH" data-tier="custom-TRASH" data-style="custom">
+        <div class="tier-label" style="background:linear-gradient(135deg,#8A1A1A,#B52525)"><input class="tier-label-input" value="TRASH" maxlength="6" spellcheck="false"/><div class="tier-label-sub">Edit label</div></div>
+        <div class="tier-content" data-drop="custom-TRASH"></div>
+        <div class="tier-count"><span class="tier-count-badge">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMAGE POOL -->
+  <div class="pool-section" id="imagePool" data-drop="pool">
+    <div class="pool-header">
+      <div class="pool-title">Image <span>Pool</span></div>
+      <div class="pool-actions">
+        <span id="poolCount" style="font-size:12px;color:var(--text3);font-weight:500;">0 images</span>
+        <button class="pool-btn" id="clearPoolBtn">Clear pool</button>
+        <button class="pool-btn" id="clearAllBtn">Reset all</button>
+      </div>
+    </div>
+    <div class="pool-images" id="poolImages">
+      <span class="empty-hint">No images yet — paste them below</span>
     </div>
 
-    <div class="tier-list">
-        <div class="tier-row">
-            <div class="tier-label" id="label1"></div>
-            <div class="tier-content dropzone" id="tier1"></div>
-        </div>
-        <div class="tier-row">
-            <div class="tier-label" id="label2"></div>
-            <div class="tier-content dropzone" id="tier2"></div>
-        </div>
-        <div class="tier-row">
-            <div class="tier-label" id="label3"></div>
-            <div class="tier-content dropzone" id="tier3"></div>
-        </div>
+    <!-- Paste zone -->
+    <div class="paste-zone" id="pasteZone" tabindex="0" title="Click here then paste an image (Ctrl+V / Cmd+V)">
+      <div class="paste-icon">📋</div>
+      <div class="paste-text">Click here, then paste an image</div>
+      <div class="paste-sub">Supports Ctrl+V / Cmd+V · Also drop files here · Paste as many as you like</div>
     </div>
+  </div>
 
-    <div class="unranked-container">
-        <h3>Paste Images anywhere (Ctrl+V / Cmd+V) or Drag them back here:</h3>
-        <div class="unranked-zone dropzone" id="unrankedZone"></div>
-    </div>
+</main>
 
-    <script>
-        // --- 1. Ranking Styles Configuration ---
-        const rankingStyles = [
-            { // Style 1: Standard
-                labels: ['S Tier', 'A Tier', 'B Tier'],
-                colors: ['#ef4444', '#f97316', '#eab308'] // Red, Orange, Yellow
-            },
-            { // Style 2: Medals
-                labels: ['Gold', 'Silver', 'Bronze'],
-                colors: ['#fbbf24', '#9ca3af', '#b45309'] // Gold, Silver, Bronze
-            },
-            { // Style 3: Descriptive
-                labels: ['Top Tier', 'Mid Tier', 'Low Tier'],
-                colors: ['#22c55e', '#3b82f6', '#a855f7'] // Green, Blue, Purple
-            }
-        ];
+<!-- Move popup -->
+<div class="move-popup" id="movePopup">
+  <div class="move-popup-title">Move to tier</div>
+  <div id="moveOptions"></div>
+</div>
 
-        let currentStyleIndex = 0;
+<!-- Zoom overlay -->
+<div class="zoom-overlay" id="zoomOverlay">
+  <button class="zoom-close" id="zoomClose">✕</button>
+  <img class="zoom-img" id="zoomImg" src="" alt="Zoomed view">
+</div>
 
-        function applyStyle(index) {
-            const style = rankingStyles[index];
-            for (let i = 1; i <= 3; i++) {
-                const labelElement = document.getElementById(`label${i}`);
-                labelElement.innerText = style.labels[i - 1];
-                labelElement.style.backgroundColor = style.colors[i - 1];
-            }
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+(function() {
+
+  // ---- STATE ----
+  let currentStyle = 'tierlist';
+  let dragCard = null;
+  let dragSrc = null;
+  let moveTarget = null;
+  let imgIdCounter = 0;
+
+  // All images stored by id: { id, src, name }
+  const images = {};
+
+  // placement[imgId] = tierId or 'pool'
+  const placement = {};
+
+  const TIER_CONFIGS = {
+    tierlist: [
+      { id: 'tierlist-S', label: 'S', sub: 'Top Tier', color: 'linear-gradient(135deg,#2D8A2D,#45B045)', border: '#4CAF50', tint: 'var(--t1-bg)' },
+      { id: 'tierlist-A', label: 'A', sub: 'Great', color: 'linear-gradient(135deg,#1A5E8A,#2485C1)', border: '#2196F3', tint: 'var(--t2-bg)' },
+      { id: 'tierlist-B', label: 'B', sub: 'Good', color: 'linear-gradient(135deg,#7A3E99,#A055CC)', border: '#9C27B0', tint: 'var(--t3-bg)' },
+      { id: 'tierlist-C', label: 'C', sub: 'Average', color: 'linear-gradient(135deg,#B06020,#D88030)', border: '#FF9800', tint: 'var(--t4-bg)' },
+      { id: 'tierlist-D', label: 'D', sub: 'Below Avg', color: 'linear-gradient(135deg,#8A1A1A,#B52525)', border: '#F44336', tint: 'var(--t5-bg)' },
+    ],
+    podium: [
+      { id: 'podium-Gold', label: '🥇', sub: 'Gold', color: 'linear-gradient(135deg,#2D8A2D,#45B045)', border: '#4CAF50', tint: 'var(--t1-bg)' },
+      { id: 'podium-Silver', label: '🥈', sub: 'Silver', color: 'linear-gradient(135deg,#1A5E8A,#2485C1)', border: '#2196F3', tint: 'var(--t2-bg)' },
+      { id: 'podium-Bronze', label: '🥉', sub: 'Bronze', color: 'linear-gradient(135deg,#7A3E99,#A055CC)', border: '#9C27B0', tint: 'var(--t3-bg)' },
+      { id: 'podium-Notable', label: '★', sub: 'Notable', color: 'linear-gradient(135deg,#B06020,#D88030)', border: '#FF9800', tint: 'var(--t4-bg)' },
+      { id: 'podium-Unranked', label: '—', sub: 'Unranked', color: 'linear-gradient(135deg,#8A1A1A,#B52525)', border: '#F44336', tint: 'var(--t5-bg)' },
+    ],
+    custom: [
+      { id: 'custom-GOD', label: 'GOD', sub: 'Edit label', color: 'linear-gradient(135deg,#2D8A2D,#45B045)', border: '#4CAF50', tint: 'var(--t1-bg)' },
+      { id: 'custom-ELITE', label: 'ELITE', sub: 'Edit label', color: 'linear-gradient(135deg,#1A5E8A,#2485C1)', border: '#2196F3', tint: 'var(--t2-bg)' },
+      { id: 'custom-MID', label: 'MID', sub: 'Edit label', color: 'linear-gradient(135deg,#7A3E99,#A055CC)', border: '#9C27B0', tint: 'var(--t3-bg)' },
+      { id: 'custom-WEAK', label: 'WEAK', sub: 'Edit label', color: 'linear-gradient(135deg,#B06020,#D88030)', border: '#FF9800', tint: 'var(--t4-bg)' },
+      { id: 'custom-TRASH', label: 'TRASH', sub: 'Edit label', color: 'linear-gradient(135deg,#8A1A1A,#B52525)', border: '#F44336', tint: 'var(--t5-bg)' },
+    ]
+  };
+
+  function getTierIds(style) {
+    return TIER_CONFIGS[style].map(t => t.id);
+  }
+
+  // ---- THEME ----
+  const themeToggle = document.getElementById('themeToggle');
+  themeToggle.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    themeToggle.textContent = isDark ? '☀' : '☾';
+  });
+
+  // ---- STYLE SWITCHING ----
+  document.querySelectorAll('.style-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentStyle = btn.dataset.style;
+      document.querySelectorAll('.style-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + currentStyle).classList.add('active');
+      updateMovePopupOptions();
+    });
+  });
+
+  // ---- IMAGE CREATION ----
+  function createImageCard(imgData, fromPool) {
+    const card = document.createElement('div');
+    card.className = 'img-card';
+    card.dataset.imgId = imgData.id;
+    card.draggable = true;
+    card.innerHTML = `
+      <img src="${imgData.src}" alt="${imgData.name || 'image'}" title="${imgData.name || ''}">
+      <div class="card-actions">
+        <button class="card-btn" data-action="zoom">🔍 Zoom</button>
+        <button class="card-btn" data-action="move">↕ Move</button>
+        <button class="card-btn danger" data-action="remove">✕ Remove</button>
+      </div>
+    `;
+
+    // Drag events
+    card.addEventListener('dragstart', e => {
+      dragCard = card;
+      dragSrc = placement[imgData.id];
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', imgData.id);
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      dragCard = null;
+      dragSrc = null;
+    });
+
+    // Button actions
+    card.querySelector('[data-action="zoom"]').addEventListener('click', e => {
+      e.stopPropagation();
+      openZoom(imgData.src);
+    });
+    card.querySelector('[data-action="move"]').addEventListener('click', e => {
+      e.stopPropagation();
+      openMovePopup(card, imgData.id, e);
+    });
+    card.querySelector('[data-action="remove"]').addEventListener('click', e => {
+      e.stopPropagation();
+      removeImage(imgData.id);
+    });
+
+    return card;
+  }
+
+  function addImageToPool(src, name) {
+    imgIdCounter++;
+    const id = 'img_' + imgIdCounter;
+    images[id] = { id, src, name: name || ('Image ' + imgIdCounter) };
+    placement[id] = 'pool';
+
+    const poolImages = document.getElementById('poolImages');
+    const hint = poolImages.querySelector('.empty-hint');
+    if (hint) hint.remove();
+    poolImages.appendChild(createImageCard(images[id], true));
+    updateCounts();
+    showToast('Image added to pool');
+  }
+
+  function moveImageToTier(imgId, tierId) {
+    const prevLoc = placement[imgId];
+    placement[imgId] = tierId;
+
+    // Remove from current location
+    const existingCard = document.querySelector(`[data-img-id="${imgId}"]`);
+    if (existingCard) existingCard.remove();
+
+    if (tierId === 'pool') {
+      const poolImages = document.getElementById('poolImages');
+      const hint = poolImages.querySelector('.empty-hint');
+      if (hint) hint.remove();
+      poolImages.appendChild(createImageCard(images[imgId], true));
+    } else {
+      const dropZone = document.querySelector(`[data-drop="${tierId}"]`);
+      if (dropZone) dropZone.appendChild(createImageCard(images[imgId], false));
+    }
+    updateCounts();
+  }
+
+  function removeImage(imgId) {
+    const card = document.querySelector(`[data-img-id="${imgId}"]`);
+    if (card) card.remove();
+    delete placement[imgId];
+    delete images[imgId];
+    updateCounts();
+    checkPoolEmpty();
+    showToast('Image removed');
+  }
+
+  function checkPoolEmpty() {
+    const poolImages = document.getElementById('poolImages');
+    const cards = poolImages.querySelectorAll('.img-card');
+    if (cards.length === 0 && !poolImages.querySelector('.empty-hint')) {
+      const hint = document.createElement('span');
+      hint.className = 'empty-hint';
+      hint.textContent = 'No images yet — paste them below';
+      poolImages.appendChild(hint);
+    }
+  }
+
+  // ---- COUNTS ----
+  function updateCounts() {
+    // Pool count
+    const poolIds = Object.keys(placement).filter(id => placement[id] === 'pool');
+    document.getElementById('poolCount').textContent = Object.keys(images).length + ' images';
+
+    // Tier counts for all styles
+    ['tierlist', 'podium', 'custom'].forEach(style => {
+      TIER_CONFIGS[style].forEach(tier => {
+        const count = Object.keys(placement).filter(id => placement[id] === tier.id).length;
+        const row = document.querySelector(`[data-tier="${tier.id}"]`);
+        if (row) {
+          const badge = row.querySelector('.tier-count-badge');
+          if (badge) badge.textContent = count;
         }
+      });
+    });
+  }
 
-        // Initialize default style
-        applyStyle(currentStyleIndex);
-
-        // Toggle button logic
-        document.getElementById('styleToggle').addEventListener('click', () => {
-            currentStyleIndex = (currentStyleIndex + 1) % rankingStyles.length;
-            applyStyle(currentStyleIndex);
+  // ---- DRAG & DROP ----
+  function setupDropZone(el, tierId) {
+    el.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      el.closest('.tier-row, .pool-section') && el.closest('.tier-row, .pool-section').classList.add('drag-over');
+    });
+    el.addEventListener('dragleave', e => {
+      if (!el.contains(e.relatedTarget)) {
+        el.closest('.tier-row, .pool-section') && el.closest('.tier-row, .pool-section').classList.remove('drag-over');
+      }
+    });
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      el.closest('.tier-row, .pool-section') && el.closest('.tier-row, .pool-section').classList.remove('drag-over');
+      const imgId = e.dataTransfer.getData('text/plain');
+      if (imgId && images[imgId]) {
+        moveImageToTier(imgId, tierId);
+      }
+      // Handle file drops
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        Array.from(e.dataTransfer.files).forEach(file => {
+          if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = ev => addImageToPool(ev.target.result, file.name);
+            reader.readAsDataURL(file);
+          }
         });
+      }
+    });
+  }
 
+  // Set up drop zones on all tier contents + pool
+  document.querySelectorAll('[data-drop]').forEach(el => {
+    setupDropZone(el, el.dataset.drop);
+  });
 
-        // --- 2. Image Pasting Logic ---
-        document.addEventListener('paste', (e) => {
-            const files = e.clipboardData.files;
-            if (files.length === 0) return;
+  // Also pool section itself
+  const poolSection = document.getElementById('imagePool');
+  poolSection.addEventListener('dragover', e => {
+    if (e.target === poolSection || e.target.id === 'poolImages') {
+      e.preventDefault();
+      poolSection.classList.add('drag-over');
+    }
+  });
+  poolSection.addEventListener('dragleave', e => {
+    if (!poolSection.contains(e.relatedTarget)) poolSection.classList.remove('drag-over');
+  });
+  poolSection.addEventListener('drop', e => {
+    e.preventDefault();
+    poolSection.classList.remove('drag-over');
+    const imgId = e.dataTransfer.getData('text/plain');
+    if (imgId && images[imgId] && placement[imgId] !== 'pool') {
+      moveImageToTier(imgId, 'pool');
+    }
+  });
 
-            for (let i = 0; i < files.length; i++) {
-                // Check if the pasted file is an image
-                if (files[i].type.indexOf('image') !== -1) {
-                    const blob = files[i];
-                    const imageUrl = URL.createObjectURL(blob);
-                    createDraggableImage(imageUrl);
-                }
-            }
-        });
+  // ---- PASTE ----
+  const pasteZone = document.getElementById('pasteZone');
+  let pasteActive = false;
 
-        function createDraggableImage(src) {
-            const img = document.createElement('img');
-            img.src = src;
-            img.className = 'draggable-img';
-            img.draggable = true;
-            img.id = 'img-' + Date.now() + '-' + Math.floor(Math.random() * 1000); // Unique ID
-            
-            // Add drag event listener to the new image
-            img.addEventListener('dragstart', dragStart);
-            
-            // Append to the unranked zone
-            document.getElementById('unrankedZone').appendChild(img);
+  pasteZone.addEventListener('click', () => {
+    pasteZone.classList.add('pasting');
+    pasteActive = true;
+    pasteZone.querySelector('.paste-text').textContent = 'Ready! Now paste your image (Ctrl+V / Cmd+V)';
+    setTimeout(() => { pasteZone.classList.remove('pasting'); pasteActive = false; pasteZone.querySelector('.paste-text').textContent = 'Click here, then paste an image'; }, 6000);
+  });
+
+  pasteZone.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') pasteZone.click();
+  });
+
+  document.addEventListener('paste', e => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    let found = false;
+    for (let item of items) {
+      if (item.type.startsWith('image/')) {
+        found = true;
+        const file = item.getAsFile();
+        const reader = new FileReader();
+        reader.onload = ev => addImageToPool(ev.target.result, 'Pasted image');
+        reader.readAsDataURL(file);
+      }
+    }
+    if (found) {
+      pasteZone.classList.remove('pasting');
+      pasteActive = false;
+      pasteZone.querySelector('.paste-text').textContent = 'Click here, then paste an image';
+    }
+  });
+
+  // File drop on paste zone
+  pasteZone.addEventListener('dragover', e => { e.preventDefault(); pasteZone.classList.add('pasting'); });
+  pasteZone.addEventListener('dragleave', () => pasteZone.classList.remove('pasting'));
+  pasteZone.addEventListener('drop', e => {
+    e.preventDefault();
+    pasteZone.classList.remove('pasting');
+    const files = e.dataTransfer.files;
+    if (files) {
+      Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = ev => addImageToPool(ev.target.result, file.name);
+          reader.readAsDataURL(file);
         }
+      });
+    }
+  });
 
+  // ---- MOVE POPUP ----
+  const movePopup = document.getElementById('movePopup');
+  const TIER_COLORS = ['#4CAF50','#2196F3','#9C27B0','#FF9800','#F44336'];
 
-        // --- 3. Drag and Drop Logic ---
-        let draggedElementId = null;
+  function openMovePopup(card, imgId, e) {
+    moveTarget = imgId;
+    const opts = document.getElementById('moveOptions');
+    opts.innerHTML = '';
 
-        function dragStart(e) {
-            draggedElementId = e.target.id;
-            e.dataTransfer.setData('text/plain', e.target.id);
-            e.dataTransfer.effectAllowed = "move";
-        }
+    const currentTiers = TIER_CONFIGS[currentStyle];
+    currentTiers.forEach((tier, i) => {
+      if (placement[imgId] === tier.id) return;
+      const opt = document.createElement('div');
+      opt.className = 'move-option';
+      opt.innerHTML = `<span class="move-dot" style="background:${TIER_COLORS[i]}"></span>${tier.sub || tier.label}`;
+      opt.addEventListener('click', () => {
+        moveImageToTier(imgId, tier.id);
+        movePopup.classList.remove('visible');
+        showToast('Moved to ' + (tier.sub || tier.label));
+      });
+      opts.appendChild(opt);
+    });
 
-        const dropzones = document.querySelectorAll('.dropzone');
+    if (placement[imgId] !== 'pool') {
+      const poolOpt = document.createElement('div');
+      poolOpt.className = 'move-option to-pool';
+      poolOpt.innerHTML = `<span class="move-dot" style="background:var(--text3)"></span>Back to pool`;
+      poolOpt.addEventListener('click', () => {
+        moveImageToTier(imgId, 'pool');
+        movePopup.classList.remove('visible');
+        showToast('Returned to pool');
+      });
+      opts.appendChild(poolOpt);
+    }
 
-        dropzones.forEach(zone => {
-            zone.addEventListener('dragover', (e) => {
-                e.preventDefault(); // Necessary to allow dropping
-                e.dataTransfer.dropEffect = "move";
-                zone.classList.add('dragover');
-            });
+    const rect = card.getBoundingClientRect();
+    movePopup.style.top = (rect.bottom + 8) + 'px';
+    movePopup.style.left = Math.min(rect.left, window.innerWidth - 200) + 'px';
+    movePopup.classList.add('visible');
+  }
 
-            zone.addEventListener('dragleave', (e) => {
-                zone.classList.remove('dragover');
-            });
+  function updateMovePopupOptions() { /* handled dynamically */ }
 
-            zone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                zone.classList.remove('dragover');
-                
-                const id = e.dataTransfer.getData('text/plain');
-                const draggableElement = document.getElementById(id);
-                
-                if (draggableElement) {
-                    zone.appendChild(draggableElement);
-                }
-            });
-        });
-    </script>
+  document.addEventListener('click', e => {
+    if (!movePopup.contains(e.target) && !e.target.closest('[data-action="move"]')) {
+      movePopup.classList.remove('visible');
+    }
+  });
+
+  // ---- ZOOM ----
+  const zoomOverlay = document.getElementById('zoomOverlay');
+  const zoomImg = document.getElementById('zoomImg');
+  const zoomClose = document.getElementById('zoomClose');
+
+  function openZoom(src) {
+    zoomImg.src = src;
+    zoomOverlay.classList.add('visible');
+  }
+  zoomClose.addEventListener('click', () => zoomOverlay.classList.remove('visible'));
+  zoomOverlay.addEventListener('click', e => { if (e.target === zoomOverlay) zoomOverlay.classList.remove('visible'); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { zoomOverlay.classList.remove('visible'); movePopup.classList.remove('visible'); } });
+
+  // ---- CLEAR / RESET ----
+  document.getElementById('clearPoolBtn').addEventListener('click', () => {
+    const poolIds = Object.keys(placement).filter(id => placement[id] === 'pool');
+    poolIds.forEach(id => { delete images[id]; delete placement[id]; });
+    document.getElementById('poolImages').innerHTML = '<span class="empty-hint">No images yet — paste them below</span>';
+    updateCounts();
+    showToast('Pool cleared');
+  });
+
+  document.getElementById('clearAllBtn').addEventListener('click', () => {
+    Object.keys(images).forEach(id => { delete images[id]; delete placement[id]; });
+    document.getElementById('poolImages').innerHTML = '<span class="empty-hint">No images yet — paste them below</span>';
+    document.querySelectorAll('.tier-content').forEach(el => el.innerHTML = '');
+    updateCounts();
+    showToast('All cleared');
+  });
+
+  // ---- EXPORT PNG ----
+  document.getElementById('exportBtn').addEventListener('click', async () => {
+    const panel = document.querySelector('.style-panel.active');
+    showToast('Exporting…');
+    try {
+      const canvas = await html2canvas(panel, {
+        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#F5F0E8',
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+      const link = document.createElement('a');
+      link.download = 'rankit-' + currentStyle + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast('Exported!');
+    } catch (err) {
+      showToast('Export failed — try again');
+    }
+  });
+
+  // ---- TOAST ----
+  const toastEl = document.getElementById('toast');
+  let toastTimer;
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+  }
+
+  // ---- CUSTOM LABEL INPUTS ----
+  document.querySelectorAll('.tier-label-input').forEach(input => {
+    input.addEventListener('mousedown', e => e.stopPropagation());
+    input.addEventListener('dragstart', e => e.preventDefault());
+  });
+
+})();
+</script>
 </body>
 </html>
