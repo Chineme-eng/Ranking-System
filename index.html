@@ -683,13 +683,6 @@
     <div class="pool-images" id="poolImages">
       <span class="empty-hint">No images yet — paste them below</span>
     </div>
-
-    <!-- Paste zone -->
-    <div class="paste-zone" id="pasteZone" tabindex="0" title="Click here then paste an image (Ctrl+V / Cmd+V)">
-      <div class="paste-icon">📋</div>
-      <div class="paste-text">Click here, then paste an image</div>
-      <div class="paste-sub">Supports Ctrl+V / Cmd+V · Also drop files here · Paste as many as you like</div>
-    </div>
   </div>
 
 </main>
@@ -977,19 +970,20 @@
     setupDropZone(el, el.dataset.drop);
   });
 
-  // ---- PASTE (UPGRADED) ----
-  const pasteZone = document.getElementById('pasteZone');
-  let pasteActive = false;
-
-  pasteZone.addEventListener('click', () => {
-    pasteZone.classList.add('pasting');
-    pasteActive = true;
-    pasteZone.querySelector('.paste-text').textContent = 'Ready! Now paste your image (Ctrl+V / Cmd+V)';
-    setTimeout(() => { 
-        pasteZone.classList.remove('pasting'); 
-        pasteActive = false; 
-        pasteZone.querySelector('.paste-text').textContent = 'Click here, then paste an image'; 
-    }, 6000);
+// ---- PASTE (UPGRADED) ----
+  // Global paste listener: Pressing Ctrl+V anywhere on the page adds the image to the pool
+  document.addEventListener('paste', e => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    
+    for (let item of items) {
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        const reader = new FileReader();
+        reader.onload = ev => addImageToPool(ev.target.result, 'Pasted image');
+        reader.readAsDataURL(file);
+      }
+    }
   });
 
   pasteZone.addEventListener('keydown', e => {
