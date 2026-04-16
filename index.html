@@ -914,15 +914,26 @@
         moveImageToTier(imgId, tierId);
       }
       // Handle file drops
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        Array.from(e.dataTransfer.files).forEach(file => {
-          if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = ev => addImageToPool(ev.target.result, file.name);
-            reader.readAsDataURL(file);
-          }
-        });
-      }
+     // Handle file drops
+if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+  Array.from(e.dataTransfer.files).forEach(file => {
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+
+      reader.onload = ev => {
+        addImageToPool(ev.target.result, file.name);
+
+        // move instantly into the tier you dropped on
+        setTimeout(() => {
+          const lastId = 'img_' + imgIdCounter;
+          moveImageToTier(lastId, tierId);
+        }, 0);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  });
+}
     });
   }
 
