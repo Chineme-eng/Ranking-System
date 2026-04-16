@@ -212,7 +212,7 @@
     align-items: center;
     gap: 8px;
     padding: 10px 14px;
-    min-height: 80px;
+    min-height: 100px;
   }
 
   .tier-count {
@@ -236,52 +236,92 @@
   .img-card {
     position: relative;
     border-radius: 8px;
-    overflow: hidden;
     cursor: grab;
-    width: 80px;
-    height: 80px;
+    width: 100px; /* Increased size */
+    height: 100px; /* Increased size */
     flex-shrink: 0;
     border: 2px solid transparent;
     transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
     background: var(--bg2);
   }
   .img-card:active { cursor: grabbing; }
-  .img-card:hover { transform: scale(1.06); border-color: var(--orange); box-shadow: var(--shadow2); z-index: 2; }
+  .img-card:hover { transform: scale(1.04); border-color: var(--orange); box-shadow: var(--shadow2); z-index: 2; }
+  
   .img-card img {
     width: 100%; height: 100%;
     object-fit: cover;
     pointer-events: none;
     display: block;
+    border-radius: 6px;
   }
-  .img-card .card-actions {
+
+  /* NEW: Corner Toggle Button */
+  .card-toggle {
     position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.55);
+    top: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    background: rgba(0,0,0,0.65);
+    color: white;
+    border-radius: 6px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.2);
     opacity: 0;
-    transition: opacity 0.18s;
+    transition: opacity 0.2s, background 0.2s, border-color 0.2s;
+    z-index: 5;
   }
-  .img-card:hover .card-actions { opacity: 1; }
+  .img-card:hover .card-toggle { opacity: 1; }
+  .card-toggle:hover { background: rgba(0,0,0,0.85); }
+  .img-card.menu-open .card-toggle { opacity: 1; background: var(--orange); border-color: var(--orange); }
+
+  /* NEW: Dropdown Menu */
+  .card-actions {
+    position: absolute;
+    top: 32px;
+    right: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow2);
+    z-index: 10;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-5px);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .img-card.menu-open .card-actions {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
   .card-btn {
     font-family: var(--font-body);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 50px;
-    border: 1px solid rgba(255,255,255,0.5);
-    background: rgba(255,255,255,0.15);
-    color: #fff;
+    padding: 8px 14px;
+    border: none;
+    background: transparent;
+    color: var(--text);
     cursor: pointer;
-    backdrop-filter: blur(4px);
-    transition: background 0.15s;
-    white-space: nowrap;
+    text-align: left;
+    width: 100%;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s, color 0.15s;
   }
-  .card-btn:hover { background: rgba(255,255,255,0.3); }
-  .card-btn.danger:hover { background: rgba(220,50,50,0.6); border-color: rgba(220,50,50,0.8); }
+  .card-btn:last-child { border-bottom: none; }
+  .card-btn:hover { background: var(--bg2); color: var(--orange); }
+  .card-btn.danger { color: #F44336; }
+  .card-btn.danger:hover { color: #D32F2F; background: var(--bg2); }
 
   .img-card.dragging { opacity: 0.35; transform: scale(0.95); }
 
@@ -381,7 +421,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    min-height: 80px;
+    min-height: 100px;
     padding: 4px 0;
   }
 
@@ -406,9 +446,6 @@
     border-color: var(--orange);
     background: var(--orange-dim2);
   }
-  .paste-icon { font-size: 28px; margin-bottom: 8px; }
-  .paste-text { font-size: 13px; color: var(--text2); font-weight: 500; }
-  .paste-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
 
   /* ---- ZOOM OVERLAY ---- */
   .zoom-overlay {
@@ -549,7 +586,10 @@
     .header { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
     .main { padding: 16px; }
     .tier-label { width: 70px; min-width: 70px; font-size: 17px; }
-    .img-card { width: 66px; height: 66px; }
+    .img-card { width: 80px; height: 80px; }
+    .card-toggle { width: 20px; height: 20px; top: 2px; right: 2px; font-size: 14px; }
+    .card-actions { top: 26px; right: 2px; }
+    .card-btn { padding: 6px 10px; font-size: 10px; }
     .style-btn { font-size: 11px; padding: 5px 10px; }
   }
 </style>
@@ -571,7 +611,6 @@
 
 <main class="main">
 
-  <!-- TIER LIST MODE -->
   <div class="style-panel active" id="panel-tierlist">
     <div class="section-label">Tier List — S to D ranking</div>
     <p class="style-desc">Classic tier list.</p>
@@ -604,7 +643,6 @@
     </div>
   </div>
 
-  <!-- PODIUM MODE -->
   <div class="style-panel" id="panel-podium">
     <div class="section-label">Podium — Competition ranking</div>
     <p class="style-desc">Competition-style podium.</p>
@@ -637,7 +675,6 @@
     </div>
   </div>
 
-  <!-- CUSTOM MODE -->
   <div class="style-panel" id="panel-custom">
     <div class="section-label">Custom — power ranking</div>
     <p class="style-desc">Personal favorite of creator.</p>
@@ -670,7 +707,6 @@
     </div>
   </div>
 
-  <!-- IMAGE POOL -->
   <div class="pool-section" id="imagePool" data-drop="pool">
     <div class="pool-header">
       <div class="pool-title">Image <span>Pool</span></div>
@@ -687,19 +723,16 @@
 
 </main>
 
-<!-- Move popup -->
 <div class="move-popup" id="movePopup">
   <div class="move-popup-title">Move to tier</div>
   <div id="moveOptions"></div>
 </div>
 
-<!-- Zoom overlay -->
 <div class="zoom-overlay" id="zoomOverlay">
   <button class="zoom-close" id="zoomClose">✕</button>
   <img class="zoom-img" id="zoomImg" src="" alt="Zoomed view">
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -775,15 +808,17 @@
     card.draggable = true;
     card.innerHTML = `
       <img src="${imgData.src}" alt="${imgData.name || 'image'}" title="${imgData.name || ''}">
+      <button class="card-toggle" data-action="toggle" title="Menu">⋮</button>
       <div class="card-actions">
-        <button class="card-btn" data-action="zoom">Z</button>
-        <button class="card-btn" data-action="move">↕</button>
-        <button class="card-btn danger" data-action="remove">✕</button>
+        <button class="card-btn" data-action="zoom">Zoom</button>
+        <button class="card-btn" data-action="move">Move</button>
+        <button class="card-btn danger" data-action="remove">Remove</button>
       </div>
     `;
 
     // Drag events
     card.addEventListener('dragstart', e => {
+      card.classList.remove('menu-open'); // Close menu on drag
       dragCard = card;
       dragSrc = placement[imgData.id];
       card.classList.add('dragging');
@@ -797,14 +832,27 @@
     });
 
     // Button actions
+    card.querySelector('[data-action="toggle"]').addEventListener('click', e => {
+      e.stopPropagation();
+      // Close other open menus first
+      document.querySelectorAll('.img-card.menu-open').forEach(c => {
+        if (c !== card) c.classList.remove('menu-open');
+      });
+      card.classList.toggle('menu-open');
+    });
+
     card.querySelector('[data-action="zoom"]').addEventListener('click', e => {
       e.stopPropagation();
+      card.classList.remove('menu-open');
       openZoom(imgData.src);
     });
+    
     card.querySelector('[data-action="move"]').addEventListener('click', e => {
       e.stopPropagation();
+      card.classList.remove('menu-open');
       openMovePopup(card, imgData.id, e);
     });
+    
     card.querySelector('[data-action="remove"]').addEventListener('click', e => {
       e.stopPropagation();
       removeImage(imgData.id);
@@ -812,6 +860,15 @@
 
     return card;
   }
+
+  // Close menus when clicking outside
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.card-toggle') && !e.target.closest('.card-actions')) {
+      document.querySelectorAll('.img-card.menu-open').forEach(card => {
+        card.classList.remove('menu-open');
+      });
+    }
+  });
 
   function addImageToPool(src, name) {
     imgIdCounter++;
@@ -891,7 +948,8 @@
   // 1. Stop the browser from opening the file if you miss the drop zone
   window.addEventListener('dragover', e => e.preventDefault());
   window.addEventListener('drop', e => e.preventDefault());
-// 2. Universal Image Handler (Handles desktop files AND web tab dragging)
+
+  // 2. Universal Image Handler (Handles desktop files AND web tab dragging)
   function handleExternalImageDrop(e, tierId) {
     // A. Check for local computer files first
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
@@ -1069,12 +1127,20 @@
     const panel = document.querySelector('.style-panel.active');
     showToast('Exporting…');
     try {
+      // Temporarily hide toggle buttons for a clean export
+      const style = document.createElement('style');
+      style.innerHTML = '.card-toggle { display: none !important; }';
+      document.head.appendChild(style);
+
       const canvas = await html2canvas(panel, {
         backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#F5F0E8',
         scale: 2,
         useCORS: true,
         logging: false,
       });
+
+      document.head.removeChild(style); // Restore toggles immediately
+
       const link = document.createElement('a');
       link.download = 'rankit-' + currentStyle + '.png';
       link.href = canvas.toDataURL('image/png');
