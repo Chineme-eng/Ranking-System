@@ -970,7 +970,7 @@
     setupDropZone(el, el.dataset.drop);
   });
 
-// ---- PASTE (UPGRADED) ----
+  // ---- PASTE (UPGRADED) ----
   // Global paste listener: Pressing Ctrl+V anywhere on the page adds the image to the pool
   document.addEventListener('paste', e => {
     const items = e.clipboardData && e.clipboardData.items;
@@ -986,6 +986,7 @@
     }
   });
 
+  // ---- MOVE POPUP ----
   pasteZone.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') pasteZone.click();
   });
