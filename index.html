@@ -953,14 +953,28 @@ if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
   poolSection.addEventListener('dragleave', e => {
     if (!poolSection.contains(e.relatedTarget)) poolSection.classList.remove('drag-over');
   });
-  poolSection.addEventListener('drop', e => {
-    e.preventDefault();
-    poolSection.classList.remove('drag-over');
-    const imgId = e.dataTransfer.getData('text/plain');
-    if (imgId && images[imgId] && placement[imgId] !== 'pool') {
-      moveImageToTier(imgId, 'pool');
-    }
-  });
+ poolSection.addEventListener('drop', e => {
+  e.preventDefault();
+  poolSection.classList.remove('drag-over');
+
+  // Handle moving existing images
+  const imgId = e.dataTransfer.getData('text/plain');
+  if (imgId && images[imgId] && placement[imgId] !== 'pool') {
+    moveImageToTier(imgId, 'pool');
+  }
+
+  // ✅ Handle NEW image files (THIS WAS MISSING)
+  if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+    Array.from(e.dataTransfer.files).forEach(file => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = ev => addImageToPool(ev.target.result, file.name);
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+});
+
 
   // ---- PASTE ----
   const pasteZone = document.getElementById('pasteZone');
